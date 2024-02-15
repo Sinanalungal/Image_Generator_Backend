@@ -52,3 +52,5 @@ class UserAccount(AbstractBaseUser,PermissionsMixin):
     def __str__(self):
         return self.email
 
+class PromptInput(models.Model):
+    prompt=models.CharField(max_length=300)

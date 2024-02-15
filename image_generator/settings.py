@@ -185,3 +185,5 @@ AUTH_USER_MODEL = 'users.UserAccount'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+OPEN_AI_API_KEY='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'
