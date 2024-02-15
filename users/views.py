@@ -45,7 +45,7 @@ class ImageView(APIView):
         
         if prompt_serializer.is_valid():
             prompt_value = prompt_serializer.validated_data.get('prompt', '')
-            print(prompt_value)
+            # print(prompt_value)
 
             client = OpenAI(api_key=OPEN_AI_API_KEY)
 
@@ -58,7 +58,7 @@ class ImageView(APIView):
             )
 
             image_url = response.data[0].url
-            print(image_url)
-            return Response(image_url, status=status.HTTP_200_OK)
+            # print(image_url)
+            return Response({"image":image_url}, status=status.HTTP_200_OK)
         else:
-            return Response(prompt_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"err":prompt_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

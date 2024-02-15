@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from . import settings
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-v86m94^y_#!h8*-=6l^f42v&gjg08t8!mj(bi8f_5qtp0^xtq*'
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -84,8 +85,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'image_generator',
-        'USER': 'postgres',
-        'PASSWORD': '9207400638',
+        'USER':config('DATABASE_USER') ,
+        'PASSWORD':config('DATABASE_PASSWORD') ,
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -102,42 +103,6 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    # "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
-    # "ROTATE_REFRESH_TOKENS": False,
-    # "BLACKLIST_AFTER_ROTATION": False,
-    # "UPDATE_LAST_LOGIN": False,
-
-    # "ALGORITHM": "HS256",
-    # "SIGNING_KEY": settings.SECRET_KEY,
-    # "VERIFYING_KEY": "",
-    # "AUDIENCE": None,
-    # "ISSUER": None,
-    # "JSON_ENCODER": None,
-    # "JWK_URL": None,
-    # "LEEWAY": 0,
-
-    # "AUTH_HEADER_TYPES": ("Bearer",),
-    # "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    # "USER_ID_FIELD": "id",
-    # "USER_ID_CLAIM": "user_id",
-    # "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-
-    # "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    # "TOKEN_TYPE_CLAIM": "token_type",
-    # "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-
-    # "JTI_CLAIM": "jti",
-
-    # "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    # "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    # "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-
-    # "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
-    # "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
-    # "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
-    # "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
-    # "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
-    # "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
 # Password validation
@@ -186,4 +151,4 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-OPEN_AI_API_KEY='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'
+OPEN_AI_API_KEY=config('OPEN_AI_API_KEY')
