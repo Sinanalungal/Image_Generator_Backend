@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'corsheaders'
 ]
 
+MEDIA_URL = '/images/'
+MEDIA_ROOT = BASE_DIR / "images"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -147,6 +150,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.UserAccount'
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]

@@ -4,7 +4,7 @@ from rest_framework import permissions,status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from .serializers import UserCreateSerializer,UserSerializer,PromptSerializer
+from .serializers import UserCreateSerializer,UserSerializer,PromptSerializer,ProfilePicSerializer
 from .models import UserAccount
 from openai import OpenAI
 from image_generator.settings import OPEN_AI_API_KEY
@@ -62,3 +62,33 @@ class ImageView(APIView):
             return Response({"image":image_url}, status=status.HTTP_200_OK)
         else:
             return Response({"err":prompt_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class ProfilePicView(APIView):
+    def patch(self,request):
+        try :
+            image_data=request.data.get('profile')
+        except KeyError:
+            return Response({'error':'there is nothing to update'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if image_data is None:
+            return Response({'error': 'There is nothing to update'}, status=status.HTTP_400_BAD_REQUEST) 
+        
+        try:
+            image_serializer=ProfilePicSerializer(data=request.data)
+        except ValueError:
+            return Response({'error':'given wrong data'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not image_serializer.is_valid():
+            return Response({"error":image_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try :
+            user_data=User.objects.get(email=request.data.get('email'))
+        except User.DoesNotExist:
+            return Response({"error":'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user_data.profile = image_serializer.validated_data.get('profile')
+        user_data.save()
+
+        return Response({'updated_image':user_data.profile.url}, status=status.HTTP_200_OK)
+    
+        

@@ -44,3 +44,8 @@ class PromptSerializer(serializers.ModelSerializer):
     class Meta:
         model=PromptInput
         fields='__all__'
+
+class ProfilePicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields=('profile',)

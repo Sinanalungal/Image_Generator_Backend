@@ -22,11 +22,11 @@ class UserAccountMangement(BaseUserManager):
         user.set_password(password)
         user.save()
         return user
-    def create_superuser(self,username,email,phonenumber=None,password=None):
+    def create_superuser(self,username,email,phone_number=None,password=None):
         user=self.create_user(
             username=username,
             email=email,
-            phone_number=phonenumber,
+            phone_number=phone_number,
             password=password
         )
         user.is_staff=True
@@ -41,12 +41,14 @@ class UserAccount(AbstractBaseUser,PermissionsMixin):
     phone_number=models.CharField(max_length=10,unique=True)
     is_active=models.BooleanField(default=True)
     is_staff=models.BooleanField(default=False)
+    profile=models.ImageField(null=True,blank=True,upload_to='images/')
+    is_listed=models.BooleanField(default=True)
 
     objects=UserAccountMangement()
 
 
     USERNAME_FIELD='email'
-    REQUIRED_FIELDS=['username','phonenumber']
+    REQUIRED_FIELDS=['phone_number']
 
 
     def __str__(self):
