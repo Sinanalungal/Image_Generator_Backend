@@ -1,6 +1,8 @@
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.serializers import TokenObtainSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from openai import OpenAI
 from image_generator.settings import OPEN_AI_API_KEY
@@ -9,6 +11,9 @@ from .serializers import (
     UserSerializer,
     PromptSerializer,
     ProfilePicSerializer,
+    UserDataSerializer,
+    UpdateUserEdit,
+    UpdateUserPassword
 )
 
 User = get_user_model()
@@ -75,38 +80,95 @@ class ImageView(APIView):
             return Response({"image": image_url}, status=status.HTTP_200_OK)
         else:
             return Response({"err": prompt_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class ProfilePicView(APIView):
-    """
-    API endpoint for updating user profile pictures.
-    """
-
     def patch(self, request):
-        """
-        Handle PATCH request for updating user profile pictures.
-        """
+        print(request.data)
         try:
             image_data = request.data.get('profile')
         except KeyError:
-            return Response({'error': 'There is nothing to update'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'There is nothing to update'}, status=status.HTTP_401_UNAUTHORIZED)
 
         if image_data is None:
-            return Response({'error': 'There is nothing to update'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'There is nothing to update'}, status=status.HTTP_402_PAYMENT_REQUIRED)
 
         try:
             image_serializer = ProfilePicSerializer(data=request.data)
-        except ValueError:
-            return Response({'error': 'Given wrong data'}, status=status.HTTP_400_BAD_REQUEST)
+            if image_serializer.is_valid():
+                user_data = User.objects.get(email=request.data.get('email'))
+                user_data.profile = image_serializer.validated_data.get('profile')
+                user_data.save()
+                return Response({'updated_image': user_data.profile.url}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": image_serializer.errors}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        if not image_serializer.is_valid():
-            return Response({"error": image_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user_data = User.objects.get(email=request.data.get('email'))
         except User.DoesNotExist:
-            return Response({"error": 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": 'User not found'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-        user_data.profile = image_serializer.validated_data.get('profile')
-        user_data.save()
+    # def put(self, request,id):
+    #     try:
+    #         user_obj = User.objects.get(id=id)
+    #     except User.DoesNotExist:
+    #         return Response("User profile not found", status=status.HTTP_404_NOT_FOUND)
 
-        return Response({'updated_image': user_data.profile.url}, status=status.HTTP_200_OK)
+    #     serializer = ProfilePicSerializer(user_obj, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class RetrieveUserData(APIView):
+    def post(self,request):
+        email = request.data.get('email')
+        try:
+            data=User.objects.get(email = email)
+        except User.DoesNotExist:
+            return Response({"error": 'There is no user'}, status=status.HTTP_400_BAD_REQUEST)
+        user = UserDataSerializer(data)
+        return Response(user.data, status=status.HTTP_200_OK)
+    
+
+# class CustomTokenObtainPairSerializer(TokenObtainSerializer):
+      
+#     def validate(self, attrs):
+#         data = super().validate(attrs)
+
+#         # Add your additional data to the response
+#         additional_data = {
+#             'name':self.user.username,
+#             # 'user_id': self.user.id,
+#             'email': self.user.email,
+#             'phone':self.user.phone_number,
+#             'is_staff': self.user.is_staff,
+#             'is_listed': self.user.is_listed,
+#             'profile': self.user.profile,
+#         }
+
+#         data.update(additional_data)
+#         return data
+    
+# class MyTokenObtainView(TokenObtainPairView):
+#     serializer_class = CustomTokenObtainPairSerializer
+    
+class UserDataUpdateView(APIView):
+    def post(self,request):
+        try:
+            user_obj=User.objects.get(email=request.data.get('email'))
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.data.get('password'):
+            serializer = UpdateUserEdit(user_obj,data=request.data)
+        else:
+            serializer = UpdateUserEdit(user_obj,data=request.data)
+
+        if serializer.is_valid():
+            if request.data.get('password'):
+                serializerpassword=UpdateUserPassword(user_obj,data=request.data)
+                if serializerpassword.is_valid():
+                    user_obj.set_password(request.data.get('password'))
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
-from .models import PromptInput
+from .models import PromptInput,UserAccount
 
 User = get_user_model()
 
@@ -67,5 +67,42 @@ class ProfilePicSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        model = User
+        model = UserAccount
         fields = ('profile',)
+
+class UserDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields=('is_staff','is_listed','email','phone_number','username','profile')
+
+class UpdateUserPassword(serializers.ModelSerializer):
+    
+
+    class Meta:
+        model = User
+        fields = ('password',)
+
+    def validate(self, data):
+        """
+        Validate user data, including password validation.
+        """
+        user = User(**data)
+        password = data.get('password')
+
+        try:
+            validate_password(password)
+        except exceptions.ValidationError as e:
+            serializer_errors = serializers.as_serializer_error(e)
+            raise exceptions.ValidationError(
+                {'password': serializer_errors['non_field_errors']}
+            )
+        return data
+    
+class UpdateUserEdit(serializers.ModelSerializer):
+    """
+    Serializer for user updation, including password validation.
+    """
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'phone_number')
