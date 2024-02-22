@@ -73,7 +73,7 @@ class ProfilePicSerializer(serializers.ModelSerializer):
 class UserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=('is_staff','is_listed','email','phone_number','username','profile')
+        fields=('id','is_staff','is_listed','email','phone_number','username','profile')
 
 class UpdateUserPassword(serializers.ModelSerializer):
     
@@ -106,3 +106,4 @@ class UpdateUserEdit(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'phone_number')
+

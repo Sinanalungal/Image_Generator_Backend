@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView,RetrieveUserView,ImageView,ProfilePicView,RetrieveUserData,UserDataUpdateView
+from .views import RegisterView,RetrieveUserView,ImageView,ProfilePicView,RetrieveUserData,UserDataUpdateView,AdminDataFetch,EditUserData,DeleteUser,SearchQuery
 
 
 urlpatterns = [
@@ -9,4 +9,8 @@ urlpatterns = [
     path('update_profile/',ProfilePicView.as_view()),
     path('fetchdata/',RetrieveUserData.as_view()),
     path('edit_details/',UserDataUpdateView.as_view()),
+    path('users_data/',AdminDataFetch.as_view()),
+    path('edit_user/<int:id>/',EditUserData.as_view()),
+    path('delete_user/<int:id>/',DeleteUser.as_view()),
+    path('search/',SearchQuery.as_view()),
 ]

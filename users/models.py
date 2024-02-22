@@ -50,7 +50,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     Custom user model with email as the unique identifier.
     """
 
-    username = models.CharField(max_length=100, validators=[MinLengthValidator(limit_value=3, message="Minimum 3 characters required.")], unique=True)
+    username = models.CharField(max_length=100, validators=[MinLengthValidator(limit_value=3, message="Minimum 3 characters required.")])
     email = models.EmailField(max_length=100, unique=True)
     phone_number = models.CharField(max_length=10, unique=True)
     is_active = models.BooleanField(default=True)
@@ -61,7 +61,11 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     objects = UserAccountManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['phone_number']
+    REQUIRED_FIELDS = ['phone_number','username']
+
+    class Meta:
+        ordering = ['id']
+
 
 
 class PromptInput(models.Model):
